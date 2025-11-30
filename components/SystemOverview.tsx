@@ -80,7 +80,10 @@ export default function SystemOverview() {
           <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Algoritm Ishlash Jarayoni</h3>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 relative">
             {/* Connecting Line (Desktop) */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-200 -z-10 transform -translate-y-1/2"></div>
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-green-500 z-0 transform -translate-y-1/2 rounded-full"></div>
+
+            {/* Connecting Line (Mobile) */}
+            <div className="md:hidden absolute top-0 left-1/2 w-1 h-full bg-green-500 z-0 transform -translate-x-1/2 rounded-full"></div>
 
             {[
               { icon: <Cpu />, title: "1. Sensorlar", desc: "Ma'lumot yig'ish" },

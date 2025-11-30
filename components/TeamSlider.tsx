@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Phone, Send, Github, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Phone, Send, Github, Mail, Check } from 'lucide-react';
 
 const teamMembers = [
   { 
@@ -30,12 +30,14 @@ const teamMembers = [
     telegram: 'https://t.me/golibbek1',
     email: 'turaev.golibjon2004@gmail.com',
     phone: '+998901137199', 
+    github: ['https://github.com/GolibjonTuraev']
 },
  
 ];
 
 export default function TeamSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
@@ -43,6 +45,12 @@ export default function TeamSlider() {
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+  };
+
+  const handleCopyEmail = (id: number, email: string) => {
+    navigator.clipboard.writeText(email);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
@@ -91,9 +99,31 @@ export default function TeamSlider() {
 
                       {/* Email */}
                       {member.email && (
-                        <a href={`mailto:${member.email}`} className="text-red-600 hover:text-red-700 bg-red-50 p-2 rounded-full transition">
-                          <Mail size={18} />
-                        </a>
+                        <>
+                          {/* Mobile: Mailto */}
+                          <a 
+                            href={`mailto:${member.email}`} 
+                            className="md:hidden text-red-600 hover:text-red-700 bg-red-50 p-2 rounded-full transition"
+                          >
+                            <Mail size={18} />
+                          </a>
+
+                          {/* Desktop: Copy to clipboard */}
+                          <button 
+                            onClick={() => handleCopyEmail(member.id, member.email)}
+                            className="hidden md:block relative text-red-600 hover:text-red-700 bg-red-50 p-2 rounded-full transition group"
+                            title="Email nusxalash"
+                          >
+                            {copiedId === member.id ? <Check size={18} /> : <Mail size={18} />}
+                            
+                            {/* Tooltip */}
+                            {copiedId === member.id && (
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow-lg whitespace-nowrap z-20">
+                                Copied!
+                              </span>
+                            )}
+                          </button>
+                        </>
                       )}
 
                       {/* GitHub Links */}
