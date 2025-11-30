@@ -1,17 +1,79 @@
 'use client';
 
-import { useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { MessageCircle, X, Send, Loader2, Check, CheckCheck } from 'lucide-react';
+
+type Message = {
+  id: number;
+  text: string;
+  sender: 'user' | 'bot';
+  time: string;
+  status?: 'sending' | 'sent' | 'read';
+};
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [contact, setContact] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      text: "Assalomu alaykum! Savollaringiz bo'lsa yozib qoldiring, operatorlarimiz tez orada javob berishadi.",
+      sender: 'bot',
+      time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    }
+  ]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isOpen]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Xabar yuborildi: ${message}`);
+    if (!message.trim()) return;
+
+    const newMessage: Message = {
+      id: Date.now(),
+      text: message,
+      sender: 'user',
+      time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      status: 'sending'
+    };
+
+    setMessages(prev => [...prev, newMessage]);
     setMessage('');
-    setIsOpen(false);
+
+    try {
+      const response = await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newMessage.text, contact }),
+      });
+
+      if (response.ok) {
+        // Update to sent (1 tick)
+        setMessages(prev => prev.map(m => 
+          m.id === newMessage.id ? { ...m, status: 'sent' } : m
+        ));
+
+        // Simulate read (2 ticks) after 1.5s
+        setTimeout(() => {
+          setMessages(prev => prev.map(m => 
+            m.id === newMessage.id ? { ...m, status: 'read' } : m
+          ));
+        }, 1500);
+      } else {
+        // Handle error visually if needed
+        console.error('Failed to send message');
+      }
+    } catch (error) {
+       console.error('Network error', error);
+    }
   };
 
   return (
@@ -48,24 +110,57 @@ export default function ChatWidget() {
               </button>
             </div>
             
-            <div className="flex-1 p-4 bg-gray-50 overflow-y-auto">
-              <div className="bg-white p-4 rounded-lg shadow-sm mb-4 max-w-[85%] border border-gray-100">
-                <p className="text-gray-800">Assalomu alaykum! <br/> Savollaringiz bo'lsa yozib qoldiring, operatorlarimiz tez orada javob berishadi.</p>
-                <span className="text-xs text-gray-400 mt-2 block">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-              </div>
+            <div className="flex-1 p-4 bg-gray-50 overflow-y-auto flex flex-col gap-4">
+              {messages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div 
+                    className={`max-w-[85%] p-3 rounded-2xl shadow-sm relative ${
+                      msg.sender === 'user' 
+                        ? 'bg-green-100 text-gray-900 rounded-tr-none' 
+                        : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                    }`}
+                  >
+                    <p className="text-sm mb-1">{msg.text}</p>
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-[10px] text-gray-400">{msg.time}</span>
+                      {msg.sender === 'user' && (
+                        <span className="text-green-600">
+                          {msg.status === 'sending' && <Loader2 size={12} className="animate-spin" />}
+                          {msg.status === 'sent' && <Check size={14} />}
+                          {msg.status === 'read' && <CheckCheck size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 bg-white border-t">
+            <form onSubmit={handleSubmit} className="p-4 bg-white border-t flex flex-col gap-3">
+               <input
+                  type="text"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="Telefon raqamingiz (ixtiyoriy)"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition text-sm"
+                />
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Xabaringizni yozing..."
-                  className="flex-1 border border-gray-300 rounded-full px-4 py-3 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition"
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition text-sm"
                   required
                 />
-                <button type="submit" className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition shadow-md flex-shrink-0">
+                <button 
+                  type="submit" 
+                  className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition shadow-md flex-shrink-0"
+                >
                   <Send size={20} />
                 </button>
               </div>
