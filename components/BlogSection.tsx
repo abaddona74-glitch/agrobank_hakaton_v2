@@ -2,24 +2,29 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const achievements = [
+// Achievements removed as requested
+
+const roadmap = [
   {
-    id: 1,
-    title: "Hududiy monitoring tarmog'i ishga tushirildi",
-    desc: "5 ta hududda real vaqt monitoring stansiyalari o'rnatildi va ma'lumot yig'ila boshladi.",
-    date: "May 2025"
+    id: 'r1',
+    title: "⭐️ Monitoring tizimi (rejalashtirilgan)",
+    subtitle: "Hududiy havo sifati monitoring tizimini yo‘lga qo‘yish",
+    desc: "Hududlarning bir nechta nuqtalarida real vaqt AQI ma’lumotlarini yig‘ish mexanizmini ishga tushirish rejalashtirilmoqda. Ushbu tizim AI modelini yanada aniqroq o‘qitish uchun asos bo‘ladi.",
+    badge: "Rejalashtirilgan"
   },
   {
-    id: 2,
-    title: "AI model yordamida xavfni aniqlash",
-    desc: "AI va regressiya asosida havo ifloslanishi darajasini oldindan prognozlash modeli ishlab chiqildi.",
-    date: "Avg 2025"
+    id: 'r2',
+    title: "⭐️ AI prognoz modeli (ish jarayonida)",
+    subtitle: "AI yordamida 1 kunlik AQI prognoz modelini yaratish",
+    desc: "Vaqt qatorlari va mashinaviy o‘rganish metodlari asosida havoning ifloslanish darajasini +1 kunga oldindan aytadigan model ustida ish olib borilmoqda. Dastlabki natijalar olinishi kutilyapti.",
+    badge: "Ish jarayonida"
   },
   {
-    id: 3,
-    title: "Hamkorlik va ogohlantirish tizimi",
-    desc: "Telegram + SMS integratsiyasi orqali aholini avtomatik ogohlantirish tizimi ishga tushirildi.",
-    date: "Okt 2025"
+    id: 'r3',
+    title: "⭐️ Tavsiya va ogohlantirish tizimi (yaqin reja)",
+    subtitle: "Foydalanuvchilar uchun ogohlantirish va tavsiyalar tizimini ishlab chiqish",
+    desc: "AQI keskin o‘zgarganda foydalanuvchini ogohlantiradigan va sog‘liq bo‘yicha tavsiyalar beradigan interfeysni yaratish rejalashtirilgan. Bu xizmat foydalanuvchilarga xavfsiz vaqtni tanlashda yordam beradi.",
+    badge: "Yaqin reja"
   }
 ];
 
@@ -104,16 +109,22 @@ export default function BlogSection({ speed = 60 }: { speed?: number }) {
   return (
     <section id="achievements" className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Erishgan yutuqlarimiz</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Reja va Ish jarayoni</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {achievements.map((a) => (
-            <div key={a.id} className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">{a.title}</h3>
-                <span className="text-sm text-green-600 font-semibold">{a.date}</span>
+        {/* Roadmap cards */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {roadmap.map((r) => (
+            <div key={r.id} className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-gray-900">{r.title}</h3>
               </div>
-              <p className="text-gray-600">{a.desc}</p>
+              {r.subtitle && (
+                <p className="text-sm text-gray-700 font-semibold mb-2">{r.subtitle}</p>
+              )}
+              <p className="text-gray-600">{r.desc}</p>
+              <div className="mt-4">
+                <span className="inline-block text-xs px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">{r.badge}</span>
+              </div>
             </div>
           ))}
         </div>
