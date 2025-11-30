@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
+import Redis from 'ioredis';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-// In-memory storage for demo purposes (Note: This resets on server restart/redeploy)
-// For production, use a database like Redis (Vercel KV) or PostgreSQL.
-let messageStore: Record<string, string[]> = {};
+// Initialize Redis if URL is available
+const redis = process.env.KV_REDIS_URL ? new Redis(process.env.KV_REDIS_URL) : null;
+
+// Fallback in-memory storage (only works for local dev or persistent servers)
+let localMessageStore: Record<string, string[]> = {};
 
 export async function POST(request: Request) {
   try {
@@ -19,12 +22,18 @@ export async function POST(request: Request) {
 
       if (data.startsWith('accept_')) {
         const sessionId = data.split('_')[1];
+        const msg = "👨‍💻 Operator suhbatga qo'shildi.";
         
-        // Notify User
-        if (!messageStore[sessionId]) messageStore[sessionId] = [];
-        messageStore[sessionId].push("👨‍💻 Operator suhbatga qo'shildi.");
+        // Store message
+        if (redis) {
+          await redis.rpush(`session:${sessionId}`, msg);
+          await redis.expire(`session:${sessionId}`, 3600); // 1 hour expiry
+        } else {
+          if (!localMessageStore[sessionId]) localMessageStore[sessionId] = [];
+          localMessageStore[sessionId].push(msg);
+        }
 
-        // Update Telegram Message (Remove Accept button, show who accepted)
+        // Update Telegram Message
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -36,7 +45,7 @@ export async function POST(request: Request) {
           })
         });
 
-        // Send "End Chat" control to Admin
+        // Send "End Chat" control
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,10 +62,16 @@ export async function POST(request: Request) {
       } 
       else if (data.startsWith('end_')) {
         const sessionId = data.split('_')[1];
+        const msg = "🛑 Suhbat operator tomonidan yakunlandi.";
 
-        // Notify User
-        if (!messageStore[sessionId]) messageStore[sessionId] = [];
-        messageStore[sessionId].push("🛑 Suhbat operator tomonidan yakunlandi.");
+        // Store message
+        if (redis) {
+          await redis.rpush(`session:${sessionId}`, msg);
+          await redis.expire(`session:${sessionId}`, 3600);
+        } else {
+          if (!localMessageStore[sessionId]) localMessageStore[sessionId] = [];
+          localMessageStore[sessionId].push(msg);
+        }
 
         // Update Admin Message
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
@@ -70,7 +85,7 @@ export async function POST(request: Request) {
         });
       }
 
-      // Answer Callback Query (stop loading animation on button)
+      // Answer Callback
       await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,16 +100,18 @@ export async function POST(request: Request) {
       const replyText = body.message.text;
       const originalText = body.message.reply_to_message.text;
       
-      // Extract Session ID from the original message text
-      // Format: "🚀 Yangi Xabar (ID: xyz)..." or "Suhbat boshlandi (ID: xyz)..."
       const match = originalText.match(/ID: ([a-zA-Z0-9]+)/);
       
       if (match && match[1]) {
         const sessionId = match[1];
-        if (!messageStore[sessionId]) {
-          messageStore[sessionId] = [];
+        
+        if (redis) {
+          await redis.rpush(`session:${sessionId}`, replyText);
+          await redis.expire(`session:${sessionId}`, 3600);
+        } else {
+          if (!localMessageStore[sessionId]) localMessageStore[sessionId] = [];
+          localMessageStore[sessionId].push(replyText);
         }
-        messageStore[sessionId].push(replyText);
       }
       return NextResponse.json({ success: true });
     }
@@ -157,9 +174,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ messages: [] });
   }
 
-  const messages = messageStore[sessionId] || [];
-  // Clear messages after reading (Queue behavior)
-  messageStore[sessionId] = [];
+  let messages: string[] = [];
+
+  if (redis) {
+    // Read from Redis
+    messages = await redis.lrange(`session:${sessionId}`, 0, -1);
+    if (messages.length > 0) {
+      await redis.del(`session:${sessionId}`);
+    }
+  } else {
+    // Read from local memory
+    messages = localMessageStore[sessionId] || [];
+    localMessageStore[sessionId] = [];
+  }
 
   return NextResponse.json({ messages });
 }
