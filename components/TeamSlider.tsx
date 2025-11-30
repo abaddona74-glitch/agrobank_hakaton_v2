@@ -11,18 +11,27 @@ const teamMembers = [
     image: '/images/maxmudbek.jpg',
     telegram: 'https://t.me/TheDarkLord_555',
     phone: '+998 88 022 13 08',
+    email: 'muzaffarovmahmudbek@gmail.com',
     github: ['https://github.com/abaddona74-glitch', 'https://github.com/TheDarkLord777']
   },
   {
     id: 2,
     name: 'Ayubkhon Kariyev',
-    role: 'Project Manager',
+    role: 'Project Manager + OS + Kotlin (3 yil tajriba)',
     image: '/images/ayubxon.jpg',
+    telegram: 'https://t.me/AyubxonK',
     email: 'ayubkhankariyev@gmail.com',
-    phone: '+998935241616'
+    phone: '+998935241616',
+     github: ['https://github.com/ayubkhankariev']
   },
-  { id: 3, name: 'Malika Karimova', role: 'CTO', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Malika' },
-  { id: 4, name: 'Jamshid Aliyev', role: 'Developer', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jamshid' },
+  { id: 3, name: 'G`olib To`rayev',
+    role: 'Backend developer (3 yil tajriba)',
+    image: '/images/golib.jpg',
+    telegram: 'https://t.me/golibbek1',
+    email: 'turaev.golibjon2004@gmail.com',
+    phone: '+998901137199', 
+},
+ 
 ];
 
 export default function TeamSlider() {
@@ -42,7 +51,10 @@ export default function TeamSlider() {
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Bizning Jamoa</h2>
         
         <div className="relative flex items-center justify-center">
-          <button onClick={prevSlide} className="absolute left-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100">
+          <button 
+            onClick={prevSlide} 
+            className={`absolute left-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 ${teamMembers.length <= 3 ? 'md:hidden' : ''}`}
+          >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
 
@@ -97,7 +109,10 @@ export default function TeamSlider() {
             </div>
           </div>
 
-          <button onClick={nextSlide} className="absolute right-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100">
+          <button 
+            onClick={nextSlide} 
+            className={`absolute right-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 ${teamMembers.length <= 3 ? 'md:hidden' : ''}`}
+          >
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>
         </div>
