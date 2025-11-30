@@ -23,7 +23,45 @@ export default function ChatWidget() {
       time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
     }
   ]);
+  const [sessionId, setSessionId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Generate or retrieve session ID
+    let storedSessionId = localStorage.getItem('chatSessionId');
+    if (!storedSessionId) {
+      storedSessionId = Math.random().toString(36).substring(7);
+      localStorage.setItem('chatSessionId', storedSessionId);
+    }
+    setSessionId(storedSessionId);
+  }, []);
+
+  // Polling for new messages
+  useEffect(() => {
+    if (!isOpen || !sessionId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/telegram?sessionId=${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            const newMsgs = data.messages.map((text: string) => ({
+              id: Date.now() + Math.random(),
+              text,
+              sender: 'bot',
+              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            }));
+            setMessages(prev => [...prev, ...newMsgs]);
+          }
+        }
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    }, 3000); // Check every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [isOpen, sessionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -52,7 +90,7 @@ export default function ChatWidget() {
       const response = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMessage.text, contact }),
+        body: JSON.stringify({ message: newMessage.text, contact, sessionId }),
       });
 
       if (response.ok) {
@@ -118,22 +156,26 @@ export default function ChatWidget() {
                 >
                   <div 
                     className={`max-w-[85%] p-3 rounded-2xl shadow-sm relative ${
-                      msg.sender === 'user' 
-                        ? 'bg-green-100 text-gray-900 rounded-tr-none' 
-                        : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                      msg.text.includes('Suhbat operator tomonidan yakunlandi')
+                        ? 'bg-red-50 text-red-600 border border-red-100 w-full text-center'
+                        : msg.sender === 'user' 
+                          ? 'bg-green-100 text-gray-900 rounded-tr-none' 
+                          : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
                     }`}
                   >
                     <p className="text-sm mb-1">{msg.text}</p>
-                    <div className="flex items-center justify-end gap-1">
-                      <span className="text-[10px] text-gray-400">{msg.time}</span>
-                      {msg.sender === 'user' && (
-                        <span className="text-green-600">
-                          {msg.status === 'sending' && <Loader2 size={12} className="animate-spin" />}
-                          {msg.status === 'sent' && <Check size={14} />}
-                          {msg.status === 'read' && <CheckCheck size={14} />}
-                        </span>
-                      )}
-                    </div>
+                    {!msg.text.includes('Suhbat operator tomonidan yakunlandi') && (
+                      <div className="flex items-center justify-end gap-1">
+                        <span className="text-[10px] text-gray-400">{msg.time}</span>
+                        {msg.sender === 'user' && (
+                          <span className="text-green-600">
+                            {msg.status === 'sending' && <Loader2 size={12} className="animate-spin" />}
+                            {msg.status === 'sent' && <Check size={14} />}
+                            {msg.status === 'read' && <CheckCheck size={14} />}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -159,7 +201,7 @@ export default function ChatWidget() {
                 />
                 <button 
                   type="submit" 
-                  className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition shadow-md flex-shrink-0"
+                  className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition shadow-md shrink-0"
                 >
                   <Send size={20} />
                 </button>
