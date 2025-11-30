@@ -13,6 +13,7 @@ type Message = {
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [unseenCount, setUnseenCount] = useState(0);
   const [message, setMessage] = useState('');
   const [contact, setContact] = useState('');
   const [messages, setMessages] = useState<Message[]>([
@@ -35,6 +36,36 @@ export default function ChatWidget() {
     }
     setSessionId(storedSessionId);
   }, []);
+
+  // Background polling when widget is closed to detect incoming SMS/notifications
+  useEffect(() => {
+    if (isOpen || !sessionId) return;
+
+    const bgInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/telegram?sessionId=${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            const newMsgs = data.messages.map((text: string) => ({
+              id: Date.now() + Math.random(),
+              text,
+              sender: 'bot' as const,
+              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            }));
+            // Append messages so they appear when user opens chat
+            setMessages(prev => [...prev, ...newMsgs]);
+            // Increase unseen count badge
+            setUnseenCount(prev => prev + newMsgs.length);
+          }
+        }
+      } catch (e) {
+        console.error('Background polling error', e);
+      }
+    }, 4000); // poll every 4s when closed
+
+    return () => clearInterval(bgInterval);
+  }, [isOpen, sessionId]);
 
   // Polling for new messages
   useEffect(() => {
@@ -119,11 +150,18 @@ export default function ChatWidget() {
       {/* Trigger Button - Fixed to Right Side */}
       <div className={`fixed bottom-6 right-6 z-50 ${isOpen ? 'hidden' : 'block'}`}>
         <button 
-          onClick={() => setIsOpen(true)}
-          className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all hover:scale-110 flex items-center gap-2"
+          onClick={() => { setIsOpen(true); setUnseenCount(0); }}
+          className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all hover:scale-110 flex items-center gap-2 relative"
         >
           <MessageCircle size={28} />
           <span className="font-semibold hidden md:inline">Chat</span>
+
+          {/* Notification badge */}
+          {unseenCount > 0 && (
+            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full animate-pulse">
+              {unseenCount}
+            </span>
+          )}
         </button>
       </div>
 

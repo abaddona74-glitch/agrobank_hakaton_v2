@@ -2,10 +2,10 @@ import Navbar from '@/components/Navbar';
 import TeamSlider from '@/components/TeamSlider';
 import BlogSection from '@/components/BlogSection';
 import ChatWidget from '@/components/ChatWidget';
-import Footer from '@/components/Footer';
 import Features from '@/components/Features';
 import SystemOverview from '@/components/SystemOverview';
 import { ArrowRight, Wind } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -54,7 +54,7 @@ export default function Home() {
       <BlogSection />
       
       <ChatWidget />
-      
+
       <Footer />
     </main>
   );

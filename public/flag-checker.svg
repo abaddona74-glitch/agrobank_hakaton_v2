@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="8" fill="#fff"/>
+  <!-- Checker pattern 4x4 -->
+  <g fill="#000">
+    <rect x="0" y="0" width="16" height="16"/>
+    <rect x="32" y="0" width="16" height="16"/>
+    <rect x="16" y="16" width="16" height="16"/>
+    <rect x="48" y="16" width="16" height="16"/>
+    <rect x="0" y="32" width="16" height="16"/>
+    <rect x="32" y="32" width="16" height="16"/>
+    <rect x="16" y="48" width="16" height="16"/>
+    <rect x="48" y="48" width="16" height="16"/>
+  </g>
+  <!-- Flag pole -->
+  <rect x="6" y="4" width="4" height="56" fill="#059669" rx="2"/>
+  <!-- Flag shape (white, overlay) -->
+  <path d="M18 8c6-3 12-3 18 0s12 0 12 0v24c-6 0-10-3-18-3s-12 3-18 3V8z" fill="#fff"/>
+  <!-- Put checker pattern clipped to flag shape -->
+</svg>

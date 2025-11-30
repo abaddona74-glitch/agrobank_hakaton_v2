@@ -91,10 +91,17 @@ export default function SystemOverview() {
               { icon: <ShieldAlert />, title: "3. Xavf", desc: "Darajani aniqlash" },
               { icon: <BellRing />, title: "4. Xabar", desc: "SMS & Telegram" },
             ].map((step, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-full shadow-lg w-40 h-40 flex flex-col items-center justify-center text-center border-4 border-gray-50 z-10">
-                <div className="text-green-600 mb-2">{step.icon}</div>
-                <h5 className="font-bold text-gray-900">{step.title}</h5>
-                <p className="text-xs text-gray-500">{step.desc}</p>
+              <div key={idx} className="relative z-10">
+                {/* Flag badge above the circle */}
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+                  <img src="/flag.svg" alt="flag" className="w-8 h-8" />
+                </div>
+
+                <div className="bg-white p-6 rounded-full shadow-lg w-40 h-40 flex flex-col items-center justify-center text-center border-4 border-gray-50">
+                  <div className="text-green-600 mb-2">{step.icon}</div>
+                  <h5 className="font-bold text-gray-900">{step.title}</h5>
+                  <p className="text-xs text-gray-500">{step.desc}</p>
+                </div>
               </div>
             ))}
           </div>
