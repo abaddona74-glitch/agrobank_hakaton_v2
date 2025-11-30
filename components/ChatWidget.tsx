@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Check, CheckCheck } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Check, CheckCheck, ChevronUp } from 'lucide-react';
 
 type Message = {
   id: number;
@@ -147,9 +147,17 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Trigger Button - Fixed to Right Side */}
-      <div className={`fixed bottom-6 right-6 z-50 ${isOpen ? 'hidden' : 'block'}`}>
-        <button 
+      {/* Trigger Buttons - Fixed to Right Side (Chat + Scroll-to-top) */}
+      <div className={`fixed bottom-6 right-6 z-50 ${isOpen ? 'hidden' : 'flex'} items-center gap-3`}>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Scroll to top"
+          className="bg-white text-green-600 p-3 rounded-full shadow-md hover:bg-gray-100 transition-all"
+        >
+          <ChevronUp size={20} />
+        </button>
+
+        <button
           onClick={() => { setIsOpen(true); setUnseenCount(0); }}
           className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all hover:scale-110 flex items-center gap-2 relative"
         >
