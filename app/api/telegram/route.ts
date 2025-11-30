@@ -107,11 +107,16 @@ export async function POST(request: Request) {
       const originalText = body.message.reply_to_message.text;
       const match = originalText.match(/ID: ([a-zA-Z0-9]+)/);
       
+      console.log('Admin Reply Detected:', { replyText, originalText, match });
+
       if (match && match[1]) {
         const sessionId = match[1];
         if (redis) {
+          console.log(`Pushing to Redis session:${sessionId}`);
           await redis.rpush(`session:${sessionId}`, replyText);
           await redis.expire(`session:${sessionId}`, 3600);
+        } else {
+          console.log('Redis not initialized!');
         }
       }
       return NextResponse.json({ success: true });
@@ -180,7 +185,10 @@ export async function GET(request: Request) {
   let messages: string[] = [];
   if (redis) {
     messages = await redis.lrange(`session:${sessionId}`, 0, -1);
-    if (messages.length > 0) await redis.del(`session:${sessionId}`);
+    if (messages.length > 0) {
+      console.log(`Frontend retrieved messages for ${sessionId}:`, messages);
+      await redis.del(`session:${sessionId}`);
+    }
   } else {
     messages = localMessageStore[sessionId] || [];
     localMessageStore[sessionId] = [];
