@@ -17,3 +17,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Disable dragging and selection for images and icons globally */
+img, svg, .icon {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: auto;
+}
+
+/* Also ensure images are not draggable via attribute where possible */
+img[draggable] { draggable: false; }
