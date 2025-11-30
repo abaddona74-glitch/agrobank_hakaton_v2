@@ -1,12 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Phone, Send, Github, Mail } from 'lucide-react';
 
 const teamMembers = [
-  { id: 1, name: 'Aziz Rahimov', role: 'CEO', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aziz' },
-  { id: 2, name: 'Malika Karimova', role: 'CTO', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Malika' },
-  { id: 3, name: 'Jamshid Aliyev', role: 'Developer', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jamshid' },
+  { 
+    id: 1, 
+    name: 'Muzaffarov Maxmudbek', 
+    role: 'Fullstack Web dev + AI (5 yil tajriba)', 
+    image: '/images/maxmudbek.jpg',
+    telegram: 'https://t.me/TheDarkLord_555',
+    phone: '+998 88 022 13 08',
+    github: ['https://github.com/abaddona74-glitch', 'https://github.com/TheDarkLord777']
+  },
+  {
+    id: 2,
+    name: 'Ayubkhon Kariyev',
+    role: 'Project Manager',
+    image: '/images/ayubxon.jpg',
+    email: 'ayubkhankariyev@gmail.com',
+    phone: '+998935241616'
+  },
+  { id: 3, name: 'Malika Karimova', role: 'CTO', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Malika' },
+  { id: 4, name: 'Jamshid Aliyev', role: 'Developer', image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jamshid' },
 ];
 
 export default function TeamSlider() {
@@ -19,11 +35,6 @@ export default function TeamSlider() {
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
   };
-
-  // Show 3 items on desktop, 1 on mobile. 
-  // For simplicity in this custom slider, I'll just show one main one or a window.
-  // Let's do a simple responsive grid for "Team" usually looks better, but user asked for slider.
-  // I will implement a simple card carousel.
 
   return (
     <section id="team" className="py-16 bg-gray-50">
@@ -42,14 +53,44 @@ export default function TeamSlider() {
             >
               {teamMembers.map((member) => (
                 <div key={member.id} className="w-full shrink-0 px-4 md:w-1/3">
-                  <div className="bg-white rounded-xl shadow-lg p-6 text-center h-full">
+                  <div className="bg-white rounded-xl shadow-lg p-6 text-center h-full flex flex-col items-center">
                     <img 
                       src={member.image} 
                       alt={member.name} 
-                      className="w-32 h-32 mx-auto rounded-full mb-4 bg-gray-100"
+                      className="w-32 h-32 mx-auto rounded-full mb-4 object-cover border-4 border-green-100"
                     />
                     <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
-                    <p className="text-green-600">{member.role}</p>
+                    <p className="text-green-600 mb-4 text-sm font-medium">{member.role}</p>
+                    
+                    <div className="flex flex-wrap justify-center gap-3 mt-auto">
+                      {/* Telegram */}
+                      {member.telegram && (
+                        <a href={member.telegram} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 bg-blue-50 p-2 rounded-full transition">
+                          <Send size={18} />
+                        </a>
+                      )}
+                      
+                      {/* Phone */}
+                      {member.phone && (
+                        <a href={`tel:${member.phone?.replace(/\s/g, '')}`} className="text-green-600 hover:text-green-700 bg-green-50 p-2 rounded-full transition">
+                          <Phone size={18} />
+                        </a>
+                      )}
+
+                      {/* Email */}
+                      {member.email && (
+                        <a href={`mailto:${member.email}`} className="text-red-600 hover:text-red-700 bg-red-50 p-2 rounded-full transition">
+                          <Mail size={18} />
+                        </a>
+                      )}
+
+                      {/* GitHub Links */}
+                      {member.github && member.github.map((link, idx) => (
+                        <a key={idx} href={link} target="_blank" rel="noopener noreferrer" className="text-gray-800 hover:text-black bg-gray-100 p-2 rounded-full transition">
+                          <Github size={18} />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
