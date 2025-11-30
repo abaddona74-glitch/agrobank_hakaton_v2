@@ -119,6 +119,12 @@ export async function POST(request: Request) {
     // 3. Handle Client Messages (From Website)
     const { message, contact, sessionId } = body;
 
+    // Check if this is a Telegram update that wasn't handled above
+    // (e.g. Admin sent a message without replying, or a system message)
+    if (body.update_id || (body.message && typeof body.message === 'object')) {
+      return NextResponse.json({ success: true });
+    }
+
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }

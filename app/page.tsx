@@ -4,6 +4,7 @@ import BlogSection from '@/components/BlogSection';
 import ChatWidget from '@/components/ChatWidget';
 import Footer from '@/components/Footer';
 import Features from '@/components/Features';
+import SystemOverview from '@/components/SystemOverview';
 import { ArrowRight, Wind } from 'lucide-react';
 
 export default function Home() {
@@ -45,6 +46,8 @@ export default function Home() {
       </section>
 
       <Features />
+      
+      <SystemOverview />
 
       <TeamSlider />
       
