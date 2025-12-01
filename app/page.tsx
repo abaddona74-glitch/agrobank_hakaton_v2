@@ -3,6 +3,7 @@ import TeamSlider from '@/components/TeamSlider';
 import BlogSection from '@/components/BlogSection';
 import ChatWidget from '@/components/ChatWidget';
 import Features from '@/components/Features';
+import IdeasSection from '@/components/IdeasSection';
 import SystemOverview from '@/components/SystemOverview';
 import { ArrowRight, Wind } from 'lucide-react';
 import Footer from '@/components/Footer';
@@ -52,6 +53,8 @@ export default function Home() {
       <TeamSlider />
       
       <BlogSection />
+      
+      <IdeasSection />
       
       <ChatWidget />
 
